@@ -1,7 +1,7 @@
 const mineflayer = require('mineflayer');
 const express = require('express');
 
-// 1. Web Sunucusu (Botun PC kapalıyken 7/24 uyanık kalması için)
+// 1. Web Sunucusu (UptimeRobot'un botu 7/24 uyanık tutabilmesi için)
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -13,7 +13,7 @@ app.listen(port, () => {
   console.log(`Web sunucusu ${port} portunda sorunsuz çalışıyor.`);
 });
 
-// 2. Minecraft Bot Ayarları ve Fonksiyonları
+// 2. Minecraft Bot Ayarları
 function createBot() {
   const bot = mineflayer.createBot({
     host: 'proboxpvp.funserver.top', // Sunucu IP adresin
@@ -47,36 +47,33 @@ function createBot() {
 
     const msg = message.toLowerCase();
 
+    // Kurucu (proeditYT) sunucuda mı kontrolü
+    const isOwnerOnline = Boolean(bot.players['proeditYT']);
+
     if (msg === 'sa' || msg === '!sa') {
       bot.chat(`Aleykümselam @${username}, hoş geldin! Ben sunucu asistanıyım.`);
     } else if (msg === '!yardim') {
       bot.chat('Komutlar: !site, !bilgi, !durum');
     } else if (msg === '!bilgi') {
-      bot.chat('Kurucu aktif olmadığında sunucuda ben 7/24 nöbet tutuyorum!');
+      if (isOwnerOnline) {
+        // Kurucu oyundaysa (Kırmızı ve Kalın)
+        bot.chat('&c&l[BİLGİ] Kurucu (proeditYT) şu an sunucuda aktif!');
+      } else {
+        // Kurucu oyunda değilse
+        bot.chat('&c&l[BİLGİ] Kurucu aktif olmadığında sunucuda ben 7/24 nöbet tutuyorum!');
+      }
     } else if (msg === '!durum') {
-      bot.chat('Sunucu aktif, bot sistemi 7/24 çalışıyor.');
+      if (isOwnerOnline) {
+        // Kurucu oyundaysa (Kırmızı ve Kalın)
+        bot.chat('&c&l[DURUM] Kurucu oyunda! Sunucu ve bot sistemi aktif.');
+      } else {
+        // Kurucu oyunda değilse
+        bot.chat('&c&l[DURUM] Sunucu aktif, bot sistemi 7/24 çalışıyor.');
+      }
     } 
-    // !site yazılınca tıklanabilir ve kopyalanabilir link gönderir
+    // Oyuncuları sunucudan atmaması için düz chat mesajı olarak gönderiyoruz
     else if (msg === '!site') {
-      const siteJson = JSON.stringify([
-        { text: 'Web Sitemiz: ', color: 'gold', bold: true },
-        {
-          text: 'proeditsmp.onrender.com',
-          color: 'aqua',
-          underlined: true,
-          clickEvent: {
-            action: 'open_url',
-            value: 'https://proeditsmp.onrender.com'
-          },
-          hoverEvent: {
-            action: 'show_text',
-            contents: 'Tıkla ve siteye git / adresi kopyala!'
-          }
-        }
-      ]);
-
-      // JSON formatlı tıklanabilir chat mesajını yollar
-      bot.chat(`/tellraw ${username} ${siteJson}`);
+      bot.chat(`Web sitemiz: https://proeditsmp.onrender.com`);
     }
   });
 
